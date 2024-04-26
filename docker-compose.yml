@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 
 volumes:
   data: {}
@@ -6,15 +6,24 @@ volumes:
 services:
   relay:
     image: scsibug/nostr-rs-relay:0.8.13
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+      # - 80:8080
     volumes:
       - ./relay-config.toml:/usr/src/app/config.toml
       - data:/usr/src/app/db
   dns:
     build: .
+    image: ghcr.io/hzrd149/npub-dns:master
+    restart: unless-stopped
     ports:
-      - 10053:10053
+      - 10053:10053/udp
+      - 10053:10053/tcp
+      # - 53:10053/udp
+      # - 53:10053/tcp
     depends_on:
       - relay
     environment:
-      CACHE_RELAY: relay:8080
+      CACHE_RELAY: ws://relay:8080
       BOOTSTRAP_RELAYS: wss://nostrue.com/,wss://nos.lol/,wss://nostr.wine/

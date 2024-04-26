@@ -8,6 +8,29 @@ export const PUBKEY_RECORD_KIND = 10053;
 const log = logger.extend("nostr");
 export const pool = new SimplePool();
 
+const refresh = new Set<string>();
+
+export async function refreshRecords() {
+  if (!CACHE_RELAY || refresh.size === 0) return;
+
+  const filter = {
+    kinds: [PUBKEY_RECORD_KIND],
+    authors: Array.from(refresh),
+  };
+
+  refresh.clear();
+
+  log(`Refreshing ${filter.authors.length} 10053 records`);
+  const sub = pool.subscribeMany(BOOTSTRAP_RELAYS, [filter], {
+    onevent(event) {
+      pool.publish([CACHE_RELAY!], event);
+    },
+    oneose() {
+      sub.close();
+    },
+  });
+}
+
 export async function findPubkeyRecord(pubkey: string) {
   const filter = {
     kinds: [PUBKEY_RECORD_KIND],
@@ -16,7 +39,10 @@ export async function findPubkeyRecord(pubkey: string) {
 
   if (CACHE_RELAY) {
     const cached = await pool.get([CACHE_RELAY], filter);
-    if (cached) return cached;
+    if (cached) {
+      refresh.add(pubkey);
+      return cached;
+    }
   }
 
   log("Looking for kind 10053 record for", pubkey);

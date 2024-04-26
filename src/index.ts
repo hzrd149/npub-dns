@@ -3,7 +3,11 @@ import dnsd from "hbo-dnsd";
 import WebSocket from "ws";
 import { nip19, useWebSocketImplementation } from "nostr-tools";
 import { logger } from "./logger.js";
-import { findPubkeyRecord, getRecordsFromEvent } from "./nostr.js";
+import {
+  findPubkeyRecord,
+  getRecordsFromEvent,
+  refreshRecords,
+} from "./nostr.js";
 import { HOST, PORT } from "./env.js";
 
 // @ts-expect-error
@@ -40,8 +44,11 @@ const server = dnsd
     logger(`Server running at ${HOST}:${PORT}`);
   });
 
+const refresh = setInterval(refreshRecords, 30_000);
+
 function shutdown() {
   logger("Shutting down server");
+  clearInterval(refresh);
   server.close();
   process.exit();
 }
