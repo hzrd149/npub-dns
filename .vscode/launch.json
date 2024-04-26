@@ -5,11 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "node",
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/index.js",
+      "args": ["src/index.ts"],
+      "runtimeArgs": ["--loader", "@swc-node/register/esm"],
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector",
+      "internalConsoleOptions": "openOnSessionStart",
       "outputCapture": "std",
       "env": {
         "DEBUG": "*",

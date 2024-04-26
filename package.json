@@ -1,22 +1,38 @@
 {
   "name": "npub-dns",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "license": "MIT",
-  "bin": "index.js",
+  "bin": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "nodemon index.js",
+    "prepack": "yarn build",
+    "dev": "nodemon --loader @swc-node/register/esm src/index.ts",
+    "build": "tsc",
     "format": "prettier -w ."
   },
   "dependencies": {
     "debug": "^4.3.4",
+    "dotenv": "^16.4.5",
     "hbo-dnsd": "^0.9.8",
     "nostr-tools": "^2.5.1",
     "ws": "^8.16.0"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.9.0",
+    "@swc/core": "^1.5.0",
+    "@types/debug": "^4.1.12",
+    "@types/node": "^20.12.7",
+    "@types/ws": "^8.5.10",
     "nodemon": "^3.1.0",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "nodemonConfig": {
+    "exec": "node",
+    "signal": "SIGTERM"
   }
 }
